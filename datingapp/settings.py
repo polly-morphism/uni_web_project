@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    "datingprofile",
     "rest_framework",
     "django_rest_passwordreset",
     "corsheaders",
@@ -51,7 +50,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "datingapp.urls"
@@ -123,7 +122,7 @@ USE_L10N = True
 USE_TZ = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-#CORS_ORIGIN_WHITELIST = (
+# CORS_ORIGIN_WHITELIST = (
 #    "http://localhost:3000",
 #    "http://localhost:8000",
 #    "http://127.0.0.1:3000",
@@ -133,12 +132,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 #    "http://app:8000",
 #    "http://app:3000",
 #    "http://localhost:5000",
-    # "http://" + os.environ.get("SERVERIP") + ":5000",
-    # "http://" + os.environ.get("SERVERIP") + ":3000",
-    # "http://" + os.environ.get("SERVERIP") + ":8000",
-#)
+# "http://" + os.environ.get("SERVERIP") + ":5000",
+# "http://" + os.environ.get("SERVERIP") + ":3000",
+# "http://" + os.environ.get("SERVERIP") + ":8000",
+# )
 
-#CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 
@@ -151,7 +150,7 @@ REST_FRAMEWORK = {
 }
 AUTH_USER_MODEL = "users.User"
 REFRESH_TOKEN_SECRET = SECRET_KEY
-
+ACCOUNT_LOGOUT_ON_GET = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

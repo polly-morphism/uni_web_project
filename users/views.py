@@ -28,11 +28,23 @@ class LikesListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, user_that_likes, user_that_is_liked):
-        new_like = Like(
-            user_id=User.objects.get(id=user_that_likes),
-            liked_user_id=User.objects.get(id=user_that_is_liked),
-        )
-        new_like.save()
+        # new_like = Like(
+        #     user_id=User.objects.get(id=user_that_likes),
+        #     liked_user_id=User.objects.get(id=user_that_is_liked),
+        # )
+        # new_like.save()
+
+        try:
+            Like.objects.get(
+                user_id=User.objects.get(id=user_that_likes),
+                liked_user_id=User.objects.get(id=user_that_is_liked),
+            ).delete()
+        except Like.DoesNotExist:
+            Like.objects.create(
+                user_id=User.objects.get(id=user_that_likes),
+                liked_user_id=User.objects.get(id=user_that_is_liked),
+            )
+
         likes_on_pk_post = Like.objects.filter(liked_user_id=user_that_is_liked)
         serializer = UserLikeSerializer(likes_on_pk_post, many=True)
         # if serializer.is_valid():
@@ -46,6 +58,31 @@ class ListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
     authentication_classes = ()
+
+
+class UserDetailsView(RetrieveUpdateAPIView):
+    """
+    Reads and updates UserModel fields
+    Accepts GET, PUT, PATCH methods.
+    Default accepted fields: username, first_name, last_name
+    Default display fields: pk, username, email, first_name, last_name
+    Read-only fields: pk, email
+    Returns UserModel fields.
+    """
+
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+    def get_queryset(self):
+        """
+        Adding this method since it is sometimes called when using
+        django-rest-swagger
+        https://github.com/Tivix/django-rest-auth/issues/275
+        """
+        return get_user_model().objects.none()
 
 
 # class LikeRetrieveAPIView(generics.RetrieveAPIView):

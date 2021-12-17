@@ -4,10 +4,30 @@ import django.contrib.auth.password_validation as validators
 from rest_auth.registration.serializers import RegisterSerializer
 
 
+# class UserDetailsSerializer(serializers.ModelSerializer):
+#     """
+#     User model w/o password
+#     """
+#
+#     class Meta:
+#         model = UserModel
+#         fields = (
+#             "id",
+#             "username",
+#             "email",
+#             "first_name",
+#             "last_name",
+#             "photo",
+#             "description",
+#         )
+#         read_only_fields = ("email",)
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            "id",
             "username",
             "email",
             "first_name",
@@ -26,7 +46,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         extra_kwargs = {"password": {"write_only": True}, "id": {"read_only": True}}
         fields = (
-	    "id",
+            "id",
             "username",
             "password",
             "email",
