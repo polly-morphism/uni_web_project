@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "allauth",
     "rest_framework.authtoken",
+    "frontend.apps.FrontendConfig",
     "users",
     "rest_auth",
 ]

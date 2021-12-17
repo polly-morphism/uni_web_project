@@ -13,6 +13,13 @@ logs:
 	docker-compose -f docker-compose.prod.yml logs -f
 
 run-prod:
+	cd likestagram/ \
+		&& npm install \
+		&& npm run build \
+		&& rm -rf ../frontend/static \
+		&& cp -r ./build/static/ ../frontend/ \
+		&& cp -r ./build/index.html ../frontend/templates/frontend/index.html
+
 	docker-compose -f docker-compose.prod.yml down -v
 	docker-compose -f docker-compose.prod.yml up -d --build
 	docker-compose -f docker-compose.prod.yml exec web python manage.py makemigrations users

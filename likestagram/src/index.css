@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '~antd/dist/antd.css';
+
+svg {
+  vertical-align: baseline;
+}
+
+img {
+  display: inline-block;
+}
+
+.ant-tabs-content {
+  height: 100%;
+}
+
+*::-webkit-scrollbar {
+  width: 0.4em;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
