@@ -60,7 +60,7 @@ class ListView(generics.ListAPIView):
     authentication_classes = ()
 
 
-class UserDetailsView(RetrieveUpdateAPIView):
+class UserDetailsView(generics.RetrieveUpdateAPIView):
     """
     Reads and updates UserModel fields
     Accepts GET, PUT, PATCH methods.
