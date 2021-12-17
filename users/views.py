@@ -54,7 +54,7 @@ class LikesListView(APIView):
 
 
 class IsLikedView(APIView):
-    def post(self, request, user_that_likes, user_that_is_liked):
+    def get(self, request, user_that_likes, user_that_is_liked):
         # new_like = Like(
         #     user_id=User.objects.get(id=user_that_likes),
         #     liked_user_id=User.objects.get(id=user_that_is_liked),
@@ -73,11 +73,40 @@ class IsLikedView(APIView):
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
-    authentication_classes = ()
+# class ListView(generics.ListAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     permission_classes = (AllowAny,)
+#     authentication_classes = ()
+#
+
+
+class ListView(APIView):
+    """
+    List all users
+    """
+
+    def get(self, request, user_id):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        resp = []
+        for user in serializer.data:
+            print(user)
+            is_liked = False
+            try:
+                Like.objects.get(
+                    user_id=User.objects.get(id=user_id),
+                    liked_user_id=User.objects.get(id=user["id"]),
+                )
+                is_liked = True
+
+            except Like.DoesNotExist:
+                is_liked = False
+
+            user["is_liked"] = is_liked
+            resp.append(user)
+
+        return Response(resp)
 
 
 class UserDetailsView(generics.RetrieveUpdateAPIView):
