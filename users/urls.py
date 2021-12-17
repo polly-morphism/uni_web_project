@@ -13,6 +13,11 @@ urlpatterns = [
         "user/",
         views.UserDetailsView.as_view(),
         name="user_info",
+    ),
+    path(
+        "<str:user_that_likes>/<str:user_that_is_liked>/is_liked/",
+        views.IsLikedView.as_view(),
+        name="is_liked",
     )
     # path("login/", views.login_view, name="login"),
     # path("logout/", views.LogoutView),

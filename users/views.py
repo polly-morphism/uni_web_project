@@ -53,6 +53,26 @@ class LikesListView(APIView):
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class IsLikedView(APIView):
+    def post(self, request, user_that_likes, user_that_is_liked):
+        # new_like = Like(
+        #     user_id=User.objects.get(id=user_that_likes),
+        #     liked_user_id=User.objects.get(id=user_that_is_liked),
+        # )
+        # new_like.save()
+
+        try:
+            Like.objects.get(
+                user_id=User.objects.get(id=user_that_likes),
+                liked_user_id=User.objects.get(id=user_that_is_liked),
+            )
+            return Response({"is_liked": True})
+
+        except Like.DoesNotExist:
+            return Response({"is_liked": False})
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
