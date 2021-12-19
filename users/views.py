@@ -32,7 +32,7 @@ class LikesListView(APIView):
         match = []
         for user in serializer.data:
             print(user)
-            you = User.objects.get(id=user["id"])
+            you = User.objects.get(id=user["user_id"])
             me = User.objects.get(id=user_that_is_liked)
             try:
                 Like.objects.get(
