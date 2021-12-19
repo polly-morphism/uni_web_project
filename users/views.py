@@ -43,25 +43,28 @@ class LikesListView(APIView):
                     user_id=me,
                     liked_user_id=you,
                 )
-                data = serializers.serialize(
-                    "json",
-                    [
-                        you,
-                    ],
-                )
-                struct = json.loads(data)
-                data = json.dumps(struct[0])
+                # data = serializers.serialize(
+                #    "json",
+                #    [
+                #        you,
+                #    ],
+                #)
+                data = UserSerializer(you).data
+                # struct = json.loads(data)
+                # data = json.dumps(struct[0])
                 match.append(data)
 
             except Like.DoesNotExist:
-                data = serializers.serialize(
-                    "json",
-                    [
-                        you,
-                    ],
-                )
-                struct = json.loads(data)
-                data = json.dumps(struct[0])
+                # data = serializers.serialize(
+                #    "json",
+                #    [
+                #        you,
+                #    ],
+                #)
+                data = UserSerializer(you).data
+                # struct = json.loads(data)
+                # data = json.dumps(struct[0])
+                data.pop('email', None)
                 is_liked_by.append(data)
 
         return Response({"match": match, "likes": is_liked_by})
