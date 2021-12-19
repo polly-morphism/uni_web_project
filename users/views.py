@@ -31,6 +31,7 @@ class LikesListView(APIView):
         is_liked_by = []
         match = []
         for user in serializer.data:
+            print(user)
             you = User.objects.get(id=user["id"])
             me = User.objects.get(id=user_that_is_liked)
             try:
