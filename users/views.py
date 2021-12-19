@@ -8,6 +8,8 @@ from .models import User, Like
 from rest_framework import viewsets
 from django.http import HttpResponse
 from django.views import View
+import json
+from django.core import serializers
 
 
 class RegistrationView(generics.CreateAPIView):
@@ -25,7 +27,43 @@ class LikesListView(APIView):
     def get(self, request, user_that_likes, user_that_is_liked):
         likes_on_pk_post = Like.objects.filter(liked_user_id=user_that_is_liked)
         serializer = UserLikeSerializer(likes_on_pk_post, many=True)
-        return Response(serializer.data)
+
+        is_liked_by = []
+        match = []
+        for user in serializer.data:
+            you = User.objects.get(id=user["id"])
+            me = User.objects.get(id=user_that_is_liked)
+            try:
+                Like.objects.get(
+                    user_id=you,
+                    liked_user_id=me,
+                )
+                Like.objects.get(
+                    user_id=me,
+                    liked_user_id=you,
+                )
+                data = serializers.serialize(
+                    "json",
+                    [
+                        you,
+                    ],
+                )
+                struct = json.loads(data)
+                data = json.dumps(struct[0])
+                match.append(data)
+
+            except Like.DoesNotExist:
+                data = serializers.serialize(
+                    "json",
+                    [
+                        you,
+                    ],
+                )
+                struct = json.loads(data)
+                data = json.dumps(struct[0])
+                is_liked_by.append(data)
+
+        return Response({"match": match, "likes": is_liked_by})
 
     def post(self, request, user_that_likes, user_that_is_liked):
         # new_like = Like(
