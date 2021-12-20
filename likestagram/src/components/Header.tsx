@@ -46,7 +46,11 @@ export const Header: React.FC = () => {
             to="/profile"
             className="h-full w-40 flex justify-end items-center gap-2 group"
           >
-            <Avatar className="bg-orange-300 shrink-0" size={'large'}>
+            <Avatar
+              className="bg-orange-300 shrink-0"
+              size={'large'}
+              src={account.photo}
+            >
               {account.first_name[0]?.toUpperCase()}
             </Avatar>
             <Typography.Title
