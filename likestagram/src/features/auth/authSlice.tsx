@@ -99,6 +99,9 @@ export const logIn = createAsyncThunk<
     rejectValue: LoginValidationErrors;
   }
 >('auth/loggingIn', async (credentials, { rejectWithValue }) => {
+  if (localStorage.getItem('token')) {
+    localStorage.removeItem('token');
+  }
   try {
     const response = await authAPI.logIn(credentials);
     localStorage.setItem('token', response.data.key);
@@ -302,7 +305,8 @@ const authSlice = createSlice({
         state.isAccountEditing = false;
         if (action.payload) {
           if (action.payload.non_field_errors?.length) {
-            state.accountEditingError = action.payload.non_field_errors[0];
+            state.accountEditingError =
+              action.payload.non_field_errors[0] ?? action.payload;
           }
 
           state.accountEditingFieldsErrors = action.payload;

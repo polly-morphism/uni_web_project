@@ -19,9 +19,10 @@ export interface UsersState {
   isLiking: boolean;
   likingError: string | null;
 
-  totalLikes: number;
-  isLikesFetching: boolean;
-  totalLikesError: string | null;
+  likers: (User & WithId & WithPhoto)[] | null;
+  matches: (User & WithId & WithPhoto)[] | null;
+  isLikersFetching: boolean;
+  likersError: string | null;
 }
 
 const initialState: UsersState = {
@@ -32,14 +33,26 @@ const initialState: UsersState = {
   isLiking: false,
   likingError: null,
 
-  totalLikes: 0,
-  isLikesFetching: false,
-  totalLikesError: null,
+  likers: [
+    {
+      id: '1',
+      first_name: 'polina',
+      last_name: 'verzun',
+      description: 'da',
+      email: 'ddd',
+      username: 'dcdcdc',
+      photo: null,
+    },
+  ],
+  matches: [],
+  isLikersFetching: false,
+  likersError: null,
 };
 
 export const getUsers = createAsyncThunk<
   (User & WithId & WithIsLiked & WithPhoto)[],
-  void
+  void,
+  { rejectValue: string }
 >('users/fetch', async (_, { getState, rejectWithValue }) => {
   const state = getState() as { auth: AuthState };
   try {
@@ -60,62 +73,67 @@ export const getUsers = createAsyncThunk<
   }
 });
 
-export const changeLike = createAsyncThunk<LikeInfo[], Id>(
-  'users/likeChange',
-  async (id, { getState, rejectWithValue }) => {
-    const state = getState() as { auth: AuthState };
-    try {
-      if (state.auth.account?.id) {
-        const response = await usersAPI.changeLike(state.auth.account.id, id);
-        return response.data;
-      }
-
-      return rejectWithValue('No account id provided');
-    } catch (e) {
-      const error = e as AxiosError<any>;
-
-      if (!error.response) {
-        throw error;
-      }
-
-      return rejectWithValue(error.response.data);
+export const changeLike = createAsyncThunk<
+  LikeInfo[],
+  Id,
+  { rejectValue: string }
+>('users/likeChange', async (id, { getState, rejectWithValue }) => {
+  const state = getState() as { auth: AuthState };
+  try {
+    if (state.auth.account?.id) {
+      const response = await usersAPI.changeLike(state.auth.account.id, id);
+      return response.data;
     }
-  }
-);
 
-export const getLikes = createAsyncThunk<LikeInfo[], void>(
-  'users/getLikes',
-  async (_, { getState, rejectWithValue }) => {
-    const state = getState() as { auth: AuthState };
-    try {
-      if (state.auth.account?.id) {
-        const response = await usersAPI.getLikes(state.auth.account.id);
-        return response.data;
-      }
+    return rejectWithValue('No account id provided');
+  } catch (e) {
+    const error = e as AxiosError<any>;
 
-      return rejectWithValue('No account id provided');
-    } catch (e) {
-      const error = e as AxiosError<any>;
-
-      if (!error.response) {
-        throw error;
-      }
-
-      return rejectWithValue(error.response.data);
+    if (!error.response) {
+      throw error;
     }
+
+    return rejectWithValue(error.response.data);
   }
-);
+});
+
+export const getLikers = createAsyncThunk<
+  {
+    likes: (User & WithId & WithPhoto)[];
+    match: (User & WithId & WithPhoto)[];
+  },
+  void,
+  { rejectValue: string }
+>('users/getLikers', async (_, { getState, rejectWithValue }) => {
+  const state = getState() as { auth: AuthState };
+  try {
+    if (state.auth.account?.id) {
+      const response = await usersAPI.getLikers(state.auth.account.id);
+      return response.data;
+    }
+
+    return rejectWithValue('No account id provided');
+  } catch (e) {
+    const error = e as AxiosError<any>;
+
+    if (!error.response) {
+      throw error;
+    }
+
+    return rejectWithValue(error.response.data);
+  }
+});
 
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    likeErrorChanged: (state, action: PayloadAction<string | null>) => {
+    likingErrorChanged: (state, action: PayloadAction<string | null>) => {
       state.likingError = action.payload;
     },
 
-    totalLikesErrorChanged: (state, action: PayloadAction<string | null>) => {
-      state.totalLikesError = action.payload;
+    likersErrorChanged: (state, action: PayloadAction<string | null>) => {
+      state.likersError = action.payload;
     },
   },
 
@@ -130,7 +148,11 @@ const usersSlice = createSlice({
       })
       .addCase(getUsers.rejected, (state, action) => {
         state.isUsersFetching = false;
-        state.usersFetchingError = action.error.message ?? null;
+        if (action.payload) {
+          state.usersFetchingError = action.payload;
+        } else {
+          state.usersFetchingError = action.error.message ?? null;
+        }
       })
 
       .addCase(changeLike.pending, (state) => {
@@ -148,25 +170,49 @@ const usersSlice = createSlice({
               : u
           );
         }
+        if (state.likers) {
+          let user = null;
+
+          state.likers = state.likers.filter((u) => {
+            if (u.id === action.meta.arg) {
+              user = u;
+              return false;
+            }
+            return true;
+          });
+
+          if (user) {
+            state.matches?.push(user);
+          }
+        }
       })
       .addCase(changeLike.rejected, (state, action) => {
         state.isLiking = false;
-        state.usersFetchingError = action.error.message ?? null;
+        if (action.payload) {
+          state.likingError = action.payload;
+        } else {
+          state.likingError = action.error.message ?? null;
+        }
       })
 
-      .addCase(getLikes.pending, (state) => {
-        state.isLikesFetching = true;
+      .addCase(getLikers.pending, (state) => {
+        state.isLikersFetching = true;
       })
-      .addCase(getLikes.fulfilled, (state, action) => {
-        state.isLikesFetching = false;
-        state.totalLikes = action.payload.length;
+      .addCase(getLikers.fulfilled, (state, action) => {
+        state.isLikersFetching = false;
+        state.likers = action.payload.likes;
+        state.matches = action.payload.match;
       })
-      .addCase(getLikes.rejected, (state, action) => {
-        state.isLikesFetching = false;
-        state.totalLikesError = action.error.message ?? null;
+      .addCase(getLikers.rejected, (state, action) => {
+        state.isLikersFetching = false;
+        if (action.payload) {
+          state.likersError = action.payload;
+        } else {
+          state.likersError = action.error.message ?? null;
+        }
       }),
 });
 
-export const { likeErrorChanged, totalLikesErrorChanged } = usersSlice.actions;
+export const { likingErrorChanged, likersErrorChanged } = usersSlice.actions;
 
 export default usersSlice.reducer;

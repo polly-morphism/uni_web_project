@@ -32,7 +32,7 @@ class LikesListView(APIView):
         match = []
         for user in serializer.data:
             print(user)
-            you = User.objects.get(id=user["id"])
+            you = User.objects.get(id=user["user_id"])
             me = User.objects.get(id=user_that_is_liked)
             try:
                 Like.objects.get(
@@ -43,25 +43,28 @@ class LikesListView(APIView):
                     user_id=me,
                     liked_user_id=you,
                 )
-                data = serializers.serialize(
-                    "json",
-                    [
-                        you,
-                    ],
-                )
-                struct = json.loads(data)
-                data = json.dumps(struct[0])
+                # data = serializers.serialize(
+                #    "json",
+                #    [
+                #        you,
+                #    ],
+                #)
+                data = UserSerializer(you).data
+                # struct = json.loads(data)
+                # data = json.dumps(struct[0])
                 match.append(data)
 
             except Like.DoesNotExist:
-                data = serializers.serialize(
-                    "json",
-                    [
-                        you,
-                    ],
-                )
-                struct = json.loads(data)
-                data = json.dumps(struct[0])
+                # data = serializers.serialize(
+                #    "json",
+                #    [
+                #        you,
+                #    ],
+                #)
+                data = UserSerializer(you).data
+                # struct = json.loads(data)
+                # data = json.dumps(struct[0])
+                # data.pop('email', None)
                 is_liked_by.append(data)
 
         return Response({"match": match, "likes": is_liked_by})

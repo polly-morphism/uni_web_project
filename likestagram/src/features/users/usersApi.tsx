@@ -19,7 +19,10 @@ export const usersAPI = {
     return template.post<LikeInfo[]>(`${likerId}/${likedId}/like/`);
   },
 
-  getLikes: (id: Id) => {
-    return template.get<LikeInfo[]>(`/${id}/${id}/like/`);
+  getLikers: (id: Id) => {
+    return template.get<{
+      likes: (User & WithId & WithPhoto)[];
+      match: (User & WithId & WithPhoto)[];
+    }>(`/${id}/${id}/like/`);
   },
 };
